@@ -200,6 +200,15 @@ function warnOnInvalidCallback(callback: mixed, callerName: string): void {
   }
 }
 
+/**
+ * 
+ * @param {*} parentComponent 父容器，初始化阶段为null
+ * @param {*} children // 子 初始化阶段为 render的第一个参数
+ * @param {*} container // html 容器 初始化阶段为 id为root的div
+ * @param {*} forceHydrate // 是否是服务端渲染， 初始化阶段为 false
+ * @param {*} callback 回调函数
+ * @returns 
+ */
 function legacyRenderSubtreeIntoContainer(
   parentComponent: ?React$Component<any, any>,
   children: ReactNodeList,
@@ -310,6 +319,12 @@ export function hydrate(
   );
 }
 
+/**
+ * React 渲染入口
+ * element: ReactElement, jsx - react.createElement
+ * container HTML 元素
+ * callback 回调函数
+*/
 export function render(
   element: React$Element<any>,
   container: Container,
@@ -324,6 +339,7 @@ export function render(
     );
   }
 
+  //是否是有效的容器
   if (!isValidContainerLegacy(container)) {
     throw new Error('Target container is not a DOM element.');
   }
@@ -340,6 +356,8 @@ export function render(
       );
     }
   }
+
+  //将自述渲染到容器中
   return legacyRenderSubtreeIntoContainer(
     null,
     element,
