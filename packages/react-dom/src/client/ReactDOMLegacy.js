@@ -108,6 +108,15 @@ function noopOnRecoverableError() {
   // legacy API.
 }
 
+/**
+ * 
+ * @param {*} container 初始化阶段为 dom rootdiv
+ * @param {*} initialChildren 初始化阶段为 render第一个参数
+ * @param {*} parentComponent 父组件
+ * @param {*} callback 回调函数 
+ * @param {*} isHydrationContainer  是否是服务端渲染
+ * @returns 
+ */
 function legacyCreateRootFromDOMContainer(
   container: Container,
   initialChildren: ReactNodeList,
@@ -115,6 +124,7 @@ function legacyCreateRootFromDOMContainer(
   callback: ?Function,
   isHydrationContainer: boolean,
 ): FiberRoot {
+  // 是否是服务端渲染
   if (isHydrationContainer) {
     if (typeof callback === 'function') {
       const originalCallback = callback;
@@ -148,9 +158,10 @@ function legacyCreateRootFromDOMContainer(
     return root;
   } else {
     // First clear any existing content.
+    // 1. 删除container中的所有元素。
     let rootSibling;
     while ((rootSibling = container.lastChild)) {
-      container.removeChild(rootSibling);
+      container.removeChild(rootSibling); //dom操作
     }
 
     if (typeof callback === 'function') {
@@ -161,6 +172,7 @@ function legacyCreateRootFromDOMContainer(
       };
     }
 
+    //2. 创建Container
     const root = createContainer(
       container,
       LegacyRoot,
@@ -171,6 +183,7 @@ function legacyCreateRootFromDOMContainer(
       noopOnRecoverableError, // onRecoverableError
       null, // transitionCallbacks
     );
+    //将container的_reactRootContainer值赋为root
     container._reactRootContainer = root;
     markContainerAsRoot(root.current, container);
 
@@ -221,9 +234,10 @@ function legacyRenderSubtreeIntoContainer(
     warnOnInvalidCallback(callback === undefined ? null : callback, 'render');
   }
 
+  //通过判断container中_reactRootContainer字段是否有值，判断是否是初始加载
   const maybeRoot = container._reactRootContainer;
   let root: FiberRoot;
-  if (!maybeRoot) {
+  if (!maybeRoot) { //为空：初始加载
     // Initial mount
     root = legacyCreateRootFromDOMContainer(
       container,

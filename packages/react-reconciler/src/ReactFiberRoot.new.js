@@ -131,6 +131,20 @@ function FiberRootNode(
   }
 }
 
+/**
+ * 创建 FiberRoot
+ * @param {*} containerInfo 
+ * @param {*} tag 
+ * @param {*} hydrate 
+ * @param {*} initialChildren 
+ * @param {*} hydrationCallbacks 初始化为null
+ * @param {*} isStrictMode 初始化为false
+ * @param {*} concurrentUpdatesByDefaultOverride 初始化为false
+ * @param {*} identifierPrefix 
+ * @param {*} onRecoverableError 
+ * @param {*} transitionCallbacks 
+ * @returns 
+ */
 export function createFiberRoot(
   containerInfo: any,
   tag: RootTag,
@@ -147,6 +161,7 @@ export function createFiberRoot(
   onRecoverableError: null | ((error: mixed) => void),
   transitionCallbacks: null | TransitionTracingCallbacks,
 ): FiberRoot {
+  //1. 创建 FiberRoot
   const root: FiberRoot = (new FiberRootNode(
     containerInfo,
     tag,
@@ -154,22 +169,25 @@ export function createFiberRoot(
     identifierPrefix,
     onRecoverableError,
   ): any);
-  if (enableSuspenseCallback) {
+  if (enableSuspenseCallback) { // false
     root.hydrationCallbacks = hydrationCallbacks;
   }
 
-  if (enableTransitionTracing) {
+  if (enableTransitionTracing) { // false
     root.transitionCallbacks = transitionCallbacks;
   }
 
   // Cyclic construction. This cheats the type system right now because
   // stateNode is any.
+  // 创建了一个FiberNode对象
   const uninitializedFiber = createHostRootFiber(
     tag,
     isStrictMode,
     concurrentUpdatesByDefaultOverride,
   );
+  // 将FiberRoot的current赋值为FiberNode
   root.current = uninitializedFiber;
+  // 将FiberNode的stateNode赋值为FiberRoot
   uninitializedFiber.stateNode = root;
 
   if (enableCache) {
@@ -204,6 +222,7 @@ export function createFiberRoot(
     uninitializedFiber.memoizedState = initialState;
   }
 
+  // 初始化更新队列
   initializeUpdateQueue(uninitializedFiber);
 
   return root;
